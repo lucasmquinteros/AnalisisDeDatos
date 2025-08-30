@@ -1,0 +1,21 @@
+ID,Nombre,Edad,Ciudad,Ocupacion,Ingresos
+1,Juan,30.0,Buenos Aires,Ingeniero,50000.0
+2,Ana,35.0,Mendoza,Docente,90000.0
+3,Lucía,35.0,Buenos Aires,Médico,90000.0
+4,María,35.0,Rosario,Ingeniero,70000.0
+5,María,35.0,Rosario,Docente,70000.0
+6,Pedro,40.0,La Plata,Ingeniero,70000.0
+7,Juan,30.0,Rosario,Comerciante,150000.0
+8,Miguel,40.0,Buenos Aires,Médico,50000.0
+9,Juan,35.0,Mendoza,Comerciante,70000.0
+10,Sofía,35.0,La Plata,Médico,70000.0
+11,Carla,25.0,Buenos Aires,Docente,70000.0
+12,Ana,30.0,Mendoza,Médico,70000.0
+13,Ana,35.0,Buenos Aires,Médico,70000.0
+14,Juan,40.0,La Plata,Docente,30000.0
+15,María,35.0,Rosario,Médico,50000.0
+16,María,35.0,La Plata,Ingeniero,80000.0
+17,Miguel,30.0,Rosario,Estudiante,30000.0
+18,Sofía,30.0,La Plata,Docente,70000.0
+19,Ana,35.0,Córdoba,Estudiante,70000.0
+20,Miguel,25.0,Buenos Aires,Docente,90000.0
