@@ -1,0 +1,79 @@
+Introducción al Análisis de Datos
+Universidad Tecnológica Nacional
+Trabajo Práctico Nº 2
+Limpieza y validación de datos con Pandas
+Objetivo
+Aplicar un proceso completo de limpieza y auditoría sobre el dataset
+DatasetClase3_corrupto.csv, resolviendo problemas de nulos, duplicados,
+fechas, variables categóricas y dominios, y dejando los datos listos para
+análisis estadístico en la Clase 5.
+Modalidad de trabajo
+• El trabajo se realizará en grupos de 1 a 4 integrantes.
+• Cada estudiante deberá subir su propia copia del TP a la
+plataforma.
+• En la entrega, cada alumno deberá indicar el nombre de sus
+compañeros de grupo, en caso de haber trabajado en conjunto.
+Plazo: el TP tendrá una duración de 2 semanas a partir de la fecha de
+publicación.
+Dataset
+Se provee el archivo:
+• DatasetClase3_corrupto.csv
+Consignas
+1. Carga y exploración inicial
+o Cargar el dataset en un DataFrame.
+o Mostrar shape, info() y describe() general.
+o Identificar tipos de datos (dtypes) de todas las columnas.
+2. Valores nulos
+o Contar nulos con isna().sum().Introducción al Análisis de Datos
+Universidad Tecnológica Nacional
+o Detectar y reemplazar tokens nulos (ej.: "N/A", "-", "NA",
+"Desconocido") por NaN.
+o Elegir al menos una columna numérica (ej. Age/Edad) y probar
+dos imputaciones distintas (mediana y por grupo).
+o Mostrar cómo cambian los estadísticos (mean, median, std) antes
+y después.
+3. Duplicados
+o Detectar duplicados exactos (duplicated()).
+o Detectar duplicados por columnas de tipo ID (ej. PatientId o
+similar).
+o Eliminar duplicados exactos y documentar la decisión tomada.
+4. Fechas
+o Convertir las columnas de tipo fecha (ej. ScheduledDay,
+AppointmentDay) a formato datetime usando dayfirst=True.
+o Crear columna DiffDays = AppointmentDay - ScheduledDay.
+o Detectar registros con DiffDays < 0 y justificar qué hacer con
+ellos.
+5. Categóricas
+o Identificar columnas con baja cardinalidad (ej. Gender, No-show).
+o Convertirlas a tipo category.
+o Unificar valores mal escritos (ej. “Fem” → “F”).
+o Crear una variable booleana DidAttend (1 = asistió, 0 = no
+asistió).
+6. Verificación de dominios
+o Revisar edades fuera de rango [0, 120].
+o Detectar categorías inválidas en Gender y No-show.
+o Documentar las decisiones: eliminar, corregir o conservar.
+7. Outliers
+o Detectar outliers en Age y DiffDays usando la regla del IQR.
+o Visualizarlos con boxplots.
+o Decidir el tratamiento: eliminar, winsorizar o mantener.Introducción al Análisis de Datos
+Universidad Tecnológica Nacional
+8. Primeras agregaciones
+o Calcular la edad promedio y la mediana por género.
+o Calcular el tiempo de espera promedio (DiffDays) según
+asistencia (DidAttend).
+o Mostrar al menos un groupby con múltiples agregaciones (agg).
+Entrega
+• Un archivo Python (.py) con el código.
+• Un informe breve en PDF (1–2 páginas) que contenga:
+o Problemas encontrados.
+o Decisiones de limpieza tomadas.
+o Ejemplos de resultados (tablas/resúmenes).
+Criterios de evaluación
+• Correcta ejecución de cada paso de limpieza.
+• Justificación clara de decisiones (qué se imputó, qué se eliminó, qué se
+corrigió).
+• Uso adecuado de Pandas (isna, duplicated, to_datetime, astype,
+groupby, agg).
+• Claridad y prolijidad del código.
+• Informe bien estructurado y conciso.
