@@ -286,3 +286,5 @@ El dataset original contenía 21 filas y 6 columnas, pero después del proceso d
 4. **Relación Edad-Ingresos**: No se observa una correlación clara entre edad e ingresos, lo que sugiere que otros factores como la ocupación pueden ser más determinantes para el nivel de ingresos.
 
 Este análisis proporciona una base sólida para entender los datos y puede servir como punto de partida para análisis más avanzados o la construcción de modelos predictivos.
+s
+En mi repo encontraras las imagenes .png y el archivo main.py: https://github.com/lucasmquinteros/AnalisisDeDatos

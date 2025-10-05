@@ -102,30 +102,51 @@ def manejar_duplicados(df):
         print("Duplicados exactos eliminados (keep='first').")
     return df
 
+
 # 4. Procesamiento de fechas y DiffDays
 
 def procesar_fechas(df):
     print("\n4. Procesamiento de fechas y DiffDays")
-    
-    # Convertir fechas asegurando misma conciencia de zona horaria y sin ambigüedades
-    # Usamos utc=True para que ambas series sean tz-aware en UTC y luego quitamos el tz para operar sin conflictos.
-    df['ScheduledDay'] = pd.to_datetime(df['ScheduledDay'], errors='coerce', dayfirst=False, utc=True).dt.tz_localize(None)
-    df['AppointmentDay'] = pd.to_datetime(df['AppointmentDay'], errors='coerce', dayfirst=False, utc=True).dt.tz_localize(None)
-    
+
+    # Opción 1: Si conoces el formato exacto (RECOMENDADO - más rápido y sin warnings)
+    # Formato ISO común: '2016-04-29T18:38:08Z'
+    try:
+        df['ScheduledDay'] = pd.to_datetime(
+            df['ScheduledDay'],
+            format='%Y-%m-%dT%H:%M:%SZ',
+            errors='coerce'
+        ).dt.tz_localize(None)
+
+        df['AppointmentDay'] = pd.to_datetime(
+            df['AppointmentDay'],
+            format='%Y-%m-%dT%H:%M:%SZ',
+            errors='coerce'
+        ).dt.tz_localize(None)
+    except:
+        # Opción 2: Si el formato varía, inferir pero sin utc=True
+        print("Formato no coincide, usando parseo flexible...")
+        df['ScheduledDay'] = pd.to_datetime(
+            df['ScheduledDay'],
+            errors='coerce'
+        )
+        df['AppointmentDay'] = pd.to_datetime(
+            df['AppointmentDay'],
+            errors='coerce'
+        )
+
     # Calcular diferencia en días de calendario (normalizando a medianoche)
     df['DiffDays'] = (df['AppointmentDay'].dt.normalize() - df['ScheduledDay'].dt.normalize()).dt.days
-    
+
     # Eliminar registros con fechas inválidas o inconsistentes
     registros_invalidos = df['DiffDays'] < 0
     print(f"\nRegistros con DiffDays negativos (eliminados): {registros_invalidos.sum()}")
     df = df[~registros_invalidos]
-    
-    return df
 
-# 5. Limpieza de variables categóricas
+    return df
+## 5. Limpieza de variables categóricas
 def limpiar_categoricas(df):
     print("\n5. Limpieza de variables categóricas")
-    
+
     # Normalizar escritura de Gender y No-show
     df['Gender'] = df['Gender'].str.upper().replace(CORR_GENDER)
     df['No-show'] = df['No-show'].replace(CORR_SHOW)
@@ -135,11 +156,12 @@ def limpiar_categoricas(df):
     df['DidAttend'] = df['No-show'].map({'No': 1, 'Yes': 0, 0: 1, 1: 0, '0': 1, '1': 0})
 
     # Convertir variables de baja cardinalidad a category
-    categoricas = ['Gender', 'DidAttend', 'Scholarship', 'Hipertension', 
+    categoricas = ['Gender', 'DidAttend', 'Scholarship', 'Hipertension',
                   'Diabetes', 'Alcoholism', 'SMS_received', 'No-show']
     for col in categoricas:
         if col in df.columns:
             df[col] = df[col].astype('category')
+            df[col] = df[col].cat.remove_unused_categories()
             print(f"\nCategorías en {col}:", df[col].unique())
     
     return df
@@ -182,10 +204,11 @@ def verificar_dominios(df):
     
     return df
 
+
 # 7. Análisis de outliers
 def analizar_outliers(df):
     print("\n7. Análisis de outliers")
-    
+
     def calcular_limites_iqr(serie):
         Q1 = serie.quantile(0.25)
         Q3 = serie.quantile(0.75)
@@ -193,44 +216,72 @@ def analizar_outliers(df):
         limite_inferior = Q1 - 1.5 * IQR
         limite_superior = Q3 + 1.5 * IQR
         return limite_inferior, limite_superior
-    
+
+    # Crear directorio si no existe
+    import os
+    os.makedirs('./docs', exist_ok=True)
+
     # Análisis para Age y DiffDays
     for columna in ['Age', 'DiffDays']:
         l_inf, l_sup = calcular_limites_iqr(df[columna])
         outliers = df[(df[columna] < l_inf) | (df[columna] > l_sup)]
-        print(f"\nOutliers en {columna}: {len(outliers)} ({len(outliers)/len(df)*100:.2f}%)")
-        
+        print(f"\nOutliers en {columna}: {len(outliers)} ({len(outliers) / len(df) * 100:.2f}%)")
+
         # Crear versión winsorizada para DiffDays
         if columna == 'DiffDays':
             df[f'{columna}_wins'] = df[columna].clip(l_inf, l_sup)
-        
+
         # Visualización
         plt.figure(figsize=(10, 4))
         sns.boxplot(x=df[columna])
         plt.title(f'Boxplot de {columna}')
+
+        # IMPORTANTE: Guardar ANTES de mostrar
+        plt.savefig(f'./docs/{columna}_boxplot.png', dpi=300, bbox_inches='tight')
+        plt.show()  # Ahora sí mostrar (cierra la figura)
+        plt.close()  # Liberar memoria
+    # Después del loop, agregar comparación
+    if 'DiffDays_wins' in df.columns:
+        fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+        # Original
+        sns.boxplot(x=df['DiffDays'], ax=axes[0])
+        axes[0].set_title('DiffDays (Original)')
+        axes[0].set_xlabel('Días de espera')
+
+        # Winsorizado
+        sns.boxplot(x=df['DiffDays_wins'], ax=axes[1], color='orange')
+        axes[1].set_title('DiffDays (Winsorizado)')
+        axes[1].set_xlabel('Días de espera')
+
+        plt.tight_layout()
+        plt.savefig('./docs/diffdays_comparison.png', dpi=300, bbox_inches='tight')
         plt.show()
-    
+        plt.close()
+
+        print("\nComparación guardada en: ./docs/diffdays_comparison.png")
+
     return df
 
-# 8. Agregaciones iniciales
+
 def realizar_agregaciones(df):
     print("\n8. Agregaciones iniciales")
-    
-    # Estadísticos por género
+
+    # Estadísticos por género (observed=True evita categorías vacías)
     print("\nEstadísticos de edad por género:")
-    print(df.groupby('Gender')['Age'].agg(['count', 'mean', 'median', 'std']))
-    
+    print(df.groupby('Gender', observed=True)['Age'].agg(['count', 'mean', 'median', 'std']))
+
     # Estadísticos de espera por asistencia
     print("\nEstadísticos de días de espera por asistencia:")
-    print(df.groupby('DidAttend')['DiffDays'].agg(['count', 'mean', 'median', 'std']))
-    
+    print(df.groupby('DidAttend', observed=True)['DiffDays'].agg(['count', 'mean', 'median', 'std']))
+
     # Agregación múltiple
     print("\nEstadísticos combinados por género y asistencia:")
-    print(df.groupby(['Gender', 'DidAttend']).agg({
+    print(df.groupby(['Gender', 'DidAttend'], observed=True).agg({
         'Age': ['count', 'mean'],
         'DiffDays': ['mean', 'median']
     }))
-    
+
     return df
 
 def main():
