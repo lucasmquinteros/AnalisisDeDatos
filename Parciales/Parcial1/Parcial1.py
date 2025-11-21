@@ -108,3 +108,5 @@ print("\n=== NULOS POR COLUMNA ===")
 print(df.isna().sum())
 
 
+# TIrar todo a un csv lidno limpio y nuevop
+df.to_csv("ventas-de-productores-de-glp-limpio.csv", index=False)
